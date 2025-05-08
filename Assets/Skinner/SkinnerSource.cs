@@ -1,6 +1,12 @@
 ﻿using UnityEngine;
 using UnityEngine.Rendering;
 
+#if UNITY_2017_2_OR_NEWER
+using UnityEngine.XR;
+#else
+using UnityEngine.VR;
+#endif
+
 namespace Skinner
 {
     /// Bakes vertex attributes of a skinned mesh into textures
@@ -180,16 +186,36 @@ namespace Skinner
             if (_tangentBuffer != null) Destroy(_tangentBuffer);
         }
 
+#if UNITY_2017_2_OR_NEWER
+        /// <summary>
+        /// Searches for an active OpenXR runtime/headset and returns
+        /// true if it finds one. 
+        /// 
+        /// Can be used as an alternative to 
+        /// UnityEngine.XR.XRSettings.enabled
+        /// </summary>
+        /// <returns>Device found</returns>
+        public static bool GetOXRHeadset()
+        {
+            return ("OpenXR Display" == XRSettings.loadedDeviceName);
+        }
+#endif
         void LateUpdate()
         {
             // Swap the buffers and invoke vertex baking.
             _swapFlag = !_swapFlag;
-
             // Render to vertex attribute buffers at once with using MRT. Note
             // that we can't use MRT when VR is enabled (due to issue #942235).
             // In that case, we use separate shaders to workaround the issue.
+#if UNITY_2017_2_OR_NEWER
+            if (!UnityEngine.XR.XRSettings.enabled) 
+#else
             if (!UnityEngine.VR.VRSettings.enabled)
+#endif
             {
+                bool test = UnityEngine.XR.XRSettings.enabled;
+                print(test);
+
                 if (_swapFlag)
                     _camera.SetTargetBuffers(_mrt1, _positionBuffer1.depthBuffer);
                 else
@@ -223,7 +249,6 @@ namespace Skinner
 
             _frameCount++;
         }
-
-        #endregion
+#endregion
     }
 }
