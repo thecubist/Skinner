@@ -213,8 +213,6 @@ namespace Skinner
             if (!UnityEngine.VR.VRSettings.enabled)
 #endif
             {
-                bool test = UnityEngine.XR.XRSettings.enabled;
-                print(test);
 
                 if (_swapFlag)
                     _camera.SetTargetBuffers(_mrt1, _positionBuffer1.depthBuffer);
